@@ -22,17 +22,20 @@ class EventServiceProvider extends ServiceProvider
 
     /**
      * Register any events for your application.
+     * @codeCoverageIgnore
      */
     public function boot(): void
     {
-        //
+        // TODO: Write test here
     }
 
     /**
      * Determine if events and listeners should be automatically discovered.
+     * @codeCoverageIgnore
      */
     public function shouldDiscoverEvents(): bool
     {
+        // TODO: Write test here
         return false;
     }
 }

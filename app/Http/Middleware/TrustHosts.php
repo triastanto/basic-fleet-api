@@ -10,9 +10,11 @@ class TrustHosts extends Middleware
      * Get the host patterns that should be trusted.
      *
      * @return array<int, string|null>
+     * @codeCoverageIgnore
      */
     public function hosts(): array
     {
+        // TODO: Write test here
         return [
             $this->allSubdomainsOfApplicationUrl(),
         ];

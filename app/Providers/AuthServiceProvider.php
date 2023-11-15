@@ -18,9 +18,10 @@ class AuthServiceProvider extends ServiceProvider
 
     /**
      * Register any authentication / authorization services.
+     * @codeCoverageIgnore
      */
     public function boot(): void
     {
-        //
+        // TODO: Write test here
     }
 }

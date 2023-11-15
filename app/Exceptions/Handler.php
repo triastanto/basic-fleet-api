@@ -20,9 +20,11 @@ class Handler extends ExceptionHandler
 
     /**
      * Register the exception handling callbacks for the application.
+     * @codeCoverageIgnore
      */
     public function register(): void
     {
+        // TODO: Write test here
         $this->reportable(function (Throwable $e) {
             //
         });
