@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('model');
             $table->string('year');
             $table->string('plate_number');
+            $table->json('meta');
             $table->string('photo');
             $table->enum('status', ['operational', 'maintenance', 'decomissioned']);
             $table->timestamps();

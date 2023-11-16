@@ -16,10 +16,27 @@ class Driver extends Model
         return $this->belongsTo(Vehicle::class);
     }
 
-    public static function available($is_odd_even = false): Driver
+    public function scopeOddEvenPlateNumber(Builder $query, $key): void
+    {
+        $query->whereHas(
+            'vehicle',
+            fn (Builder $query) => $query->where("meta->{$key}", true)
+        );
+    }
+
+    public function hasOdd(): bool
+    {
+        return $this->vehicle->hasOdd();
+    }
+
+    public function hasEven(): bool
+    {
+        return $this->vehicle->hasEven();
+    }
+
+    public static function available(): Driver
     {
         // TODO: Return a driver with a odd/even license number
         return Driver::factory()->create();
     }
-
 }

@@ -4,10 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Vehicle extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'meta' => 'array',
+    ];
+
+    public function driver(): HasOne
+    {
+        return $this->hasOne(Driver::class);
+    }
 
     public function hasOdd(): bool
     {
@@ -22,5 +32,4 @@ class Vehicle extends Model
 
         return $number % 2 === 0;
     }
-
 }
