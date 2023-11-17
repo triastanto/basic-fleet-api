@@ -12,7 +12,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $attributes = $request->merge([
-            'driver_id' => Driver::available()->id,
+            'driver_id' => Driver::available()->first()->id,
             'approver_id' => User::approver()->id,
             'status' => 'waiting_approval',
         ])->all();

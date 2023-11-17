@@ -83,7 +83,7 @@ class VehicleFactory extends Factory
      */
     private static function back(): string
     {
-        return fake()->regexify('[A-Z]{1,3}');
+        return fake()->regexify('[A-Z]{0,3}');
     }
 
     /**
