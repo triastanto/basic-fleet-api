@@ -11,9 +11,11 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
+        $personnel_no = auth()->user()->meta['personnel_no'];
+
         $attributes = $request->merge([
             'driver_id' => Driver::available()->first()->id,
-            'approver_id' => User::approver()->id,
+            'approver_id' => User::getApprover($personnel_no)->id,
             'status' => 'waiting_approval',
         ])->all();
 

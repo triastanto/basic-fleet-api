@@ -3,6 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Services\EOSAPI;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'meta',
     ];
 
     /**
@@ -41,10 +45,22 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'meta' => 'array',
     ];
 
-    public static function approver() : User
+    public function scopeWherePersonnelNo(
+        Builder $query,
+        int $personnel_no
+    ): void {
+        $query->where('meta->personnel_no', $personnel_no);
+    }
+
+    public static function getApprover(int $personnel_no): static
     {
-        return self::factory()->create();
+        /** @var \App\Services\EOSAPI */
+        $eosapi = app(EOSAPI::class);
+        $approver = $eosapi->minManagerBoss($personnel_no);
+
+        return static::wherePersonnelNo($approver['personnel_no'])->first();
     }
 }

@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Driver;
 use App\Models\Order;
 use App\Models\Place;
+use App\Models\User;
+use App\Models\Vehicle;
+use App\Services\EOSAPI;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -15,10 +20,23 @@ class OrderTest extends TestCase
     /** @test */
     public function a_user_can_create_an_order_with_default_values(): void
     {
+        // authenticated user
         $customer = $this->auth();
 
-        $sa = Carbon::instance(fake()->dateTimeThisMonth())->toDateTimeString();
+        // customer's approver
+        User::factory()->create(['meta->personnel_no' => 99999]);
+        $this->mock(EOSAPI::class, function (MockInterface $mock) {
+            $mock->shouldReceive('minManagerBoss')
+                ->andReturn(["personnel_no" => 99999]);
+        });
 
+        // driver and vehicle
+        Driver::factory()->create(
+            ['vehicle_id' => Vehicle::factory()->even()->create()->id]
+        );
+
+        // required attributes for order
+        $sa = Carbon::instance(fake()->dateTimeThisMonth())->toDateTimeString();
         $attributes = [
             'customer_id' => $customer->id,
             'pickup_id' => Place::factory()->create()->id,
@@ -26,23 +44,32 @@ class OrderTest extends TestCase
             'scheduled_at' => $sa,
         ];
 
+        // order meta for additional information
         $title = fake()->sentence();
         $pickup_details = fake()->address();
         $is_odd_even = rand(0, 1) ? true : false;
 
-        $post_data = array_merge($attributes, ['meta' => [
-            'title' => $title,
-            'pickup_details' => $pickup_details,
-            'is_odd_even' => $is_odd_even,
-        ]]);
-        $this->postJson('/api/orders', $post_data)->assertCreated();
+        // act on the post order endpoint and assert the response
+        $this->postJson(
+            '/api/orders',
+            array_merge($attributes, [
+                'meta' => [
+                    'title' => $title,
+                    'pickup_details' => $pickup_details,
+                    'is_odd_even' => $is_odd_even,
+                ]
+            ])
+        )->assertCreated();
 
-        $assert_data = array_merge($attributes, [
-            'meta->title' => $title,
-            'meta->pickup_details' => $pickup_details,
-            'meta->is_odd_even' => $is_odd_even,
-        ]);
-        $this->assertDatabaseHas('orders', $assert_data);
+        // additional data assertion
+        $this->assertDatabaseHas(
+            'orders',
+            array_merge($attributes, [
+                'meta->title' => $title,
+                'meta->pickup_details' => $pickup_details,
+                'meta->is_odd_even' => $is_odd_even,
+            ])
+        );
         $this->assertNotNull(Order::first()->driver);
         $this->assertNotNull(Order::first()->approver);
     }

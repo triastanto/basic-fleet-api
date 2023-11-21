@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'eosapi' => [
+        'base_uri' => env('EOSAPI_BASE_URI'),
+    ],
+
 ];

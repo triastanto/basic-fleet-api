@@ -24,11 +24,11 @@ class OrderFactory extends Factory
             'pickup_id' => Place::factory()->create()->id,
             'dropoff_id' => Place::factory()->create()->id,
             'scheduled_at' => fake()->dateTimeThisMonth(),
-            'meta' => json_encode([
+            'meta' => [
                 'title' => fake()->sentence(),
                 'pickup_details' => fake()->address(),
                 'is_odd_even' => rand(0, 1) ? true : false,
-            ]),
+            ],
             'driver_id' => Driver::factory()->create()->id,
             'approver_id' => User::factory()->create()->id,
             'status' => 'waiting_approval',

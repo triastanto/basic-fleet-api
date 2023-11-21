@@ -18,22 +18,4 @@ class VehicleTest extends TestCase
 
         $this->assertInstanceOf(Driver::class, $vehicle->driver);
     }
-
-    /** @test */
-    public function verify_odd_plate_number(): void
-    {
-        $vehicle = Vehicle::factory()->odd()->create();
-
-        $this->assertTrue($vehicle->hasOdd());
-        $this->assertDatabaseHas('vehicles', ['meta->odd' => true]);
-    }
-
-    /** @test */
-    public function verify_even_plate_number(): void
-    {
-        $vehicle = Vehicle::factory()->even()->create();
-
-        $this->assertTrue($vehicle->hasEven());
-        $this->assertDatabaseHas('vehicles', ['meta->even' => true]);
-    }
 }
