@@ -20,7 +20,11 @@ return new class extends Migration
             $table->jsonb('meta');
             $table->foreignId('driver_review_id')->references('id')->on('driver_reviews');
             $table->foreignId('approver_id')->references('id')->on('users');
-            $table->enum('status', ['waiting_approval'])->default('waiting_approval');
+            $table->enum('status', [
+                'waiting_approval',
+                'approved',
+            ])
+                ->default('waiting_approval');
             $table->timestamps();
         });
     }

@@ -2,12 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\DriverReview;
-use App\Models\FeedbackTaxonomy;
 use App\Models\Order;
-use Database\Seeders\FeedbackTaxonomySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class DriverReviewTest extends TestCase
@@ -17,7 +13,6 @@ class DriverReviewTest extends TestCase
     /** @test */
     public function a_customer_can_submit_driver_review(): void
     {
-        // authenticated user
         $customer = $this->auth();
 
         $order = Order::factory()->create(['customer_id' => $customer->id]);

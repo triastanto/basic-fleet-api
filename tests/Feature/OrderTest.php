@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Driver;
-use App\Models\FeedbackTaxonomy;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
