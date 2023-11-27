@@ -19,26 +19,26 @@ class Order extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->belongsTo(User::class);
     }
 
     public function pickup(): BelongsTo
     {
-        return $this->belongsTo(Place::class, 'pickup_id');
+        return $this->belongsTo(Place::class);
     }
 
     public function dropoff(): BelongsTo
     {
-        return $this->belongsTo(Place::class, 'dropoff_id');
+        return $this->belongsTo(Place::class);
     }
 
-    public function driver(): BelongsTo
+    public function driver_review(): BelongsTo
     {
-        return $this->belongsTo(Driver::class, 'driver_id');
+        return $this->belongsTo(DriverReview::class);
     }
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approver_id');
+        return $this->belongsTo(User::class);
     }
 }

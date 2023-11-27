@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Driver;
+use App\Models\DriverReview;
 use App\Models\Place;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -29,7 +29,7 @@ class OrderFactory extends Factory
                 'pickup_details' => fake()->address(),
                 'is_odd_even' => rand(0, 1) ? true : false,
             ],
-            'driver_id' => Driver::factory()->create()->id,
+            'driver_review_id' => DriverReview::factory()->create()->id,
             'approver_id' => User::factory()->create()->id,
             'status' => 'waiting_approval',
         ];

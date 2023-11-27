@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Models\Driver;
+use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
@@ -38,11 +38,11 @@ class OrderTest extends TestCase
     }
 
     /** @test */
-    public function an_order_belongs_to_driver(): void
+    public function an_order_belongs_to_driver_review(): void
     {
         $order = Order::factory()->create();
 
-        $this->assertInstanceOf(Driver::class, $order->driver);
+        $this->assertInstanceOf(DriverReview::class, $order->driver_review);
     }
 
     /** @test */

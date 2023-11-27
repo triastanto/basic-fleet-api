@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Driver;
+use App\Models\FeedbackTaxonomy;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
@@ -18,7 +19,7 @@ class OrderTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function a_user_can_create_an_order_with_default_values(): void
+    public function a_customer_can_create_an_order_with_default_values(): void
     {
         // authenticated user
         $customer = $this->auth();
@@ -51,7 +52,7 @@ class OrderTest extends TestCase
 
         // act on the post order endpoint and assert the response
         $this->postJson(
-            '/api/orders',
+            route('orders.store'),
             array_merge($attributes, [
                 'meta' => [
                     'title' => $title,
@@ -70,7 +71,8 @@ class OrderTest extends TestCase
                 'meta->is_odd_even' => $is_odd_even,
             ])
         );
-        $this->assertNotNull(Order::first()->driver);
+
+        $this->assertNotNull(Order::first()->driver_review);
         $this->assertNotNull(Order::first()->approver);
     }
 }

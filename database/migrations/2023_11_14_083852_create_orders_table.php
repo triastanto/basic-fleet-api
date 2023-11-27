@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('dropoff_id')->references('id')->on('places');
             $table->timestamp('scheduled_at');
             $table->jsonb('meta');
-            $table->foreignId('driver_id')->references('id')->on('drivers');
+            $table->foreignId('driver_review_id')->references('id')->on('driver_reviews');
             $table->foreignId('approver_id')->references('id')->on('users');
             $table->enum('status', ['waiting_approval'])->default('waiting_approval');
             $table->timestamps();

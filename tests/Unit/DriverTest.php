@@ -3,8 +3,10 @@
 namespace Tests\Unit;
 
 use App\Models\Driver;
+use App\Models\DriverReview;
 use App\Models\Vehicle;
 use DateTime;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,6 +14,14 @@ use Tests\TestCase;
 class DriverTest extends TestCase
 {
     use RefreshDatabase;
+
+    /** @test */
+    public function a_driver_has_many_driver_reviews(): void
+    {
+        $driver = Driver::factory()->create();
+
+        $this->assertInstanceOf(Collection::class, $driver->reviews);
+    }
 
     /** @test */
     public function a_driver_belongs_to_vehicle(): void

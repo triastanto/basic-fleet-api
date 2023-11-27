@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DriverReviewController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,5 +17,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/orders', [OrderController::class, 'store']);
+    Route::apiResource('orders', OrderController::class)->only('store');
+    Route::apiResource('drivers.review', DriverReviewController::class)->only('store');
 });
