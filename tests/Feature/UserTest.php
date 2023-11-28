@@ -2,11 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Order;
 use App\Models\User;
-use App\Models\Workflow\State;
 use App\Services\EOSAPI;
-use Database\Seeders\WorkflowSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -40,23 +37,5 @@ class UserTest extends TestCase
         $this->assertDatabaseHas('users', [
             'meta->personnel_no' => $approver->meta['personnel_no']
         ]);
-    }
-
-    /** @test */
-    public function an_approver_approve_order(): void
-    {
-        $approver = $this->auth();
-        $this->seed(WorkflowSeeder::class);
-        $order = Order::factory()->create(['approver_id' => $approver->id]);
-
-        $this->assertEquals($order->state, State::waitingApproval());
-
-        $this->postJson(route('orders.approve', ['order' => $order]))
-            ->assertCreated();
-
-        $this->assertDatabaseHas(
-            'orders',
-            ['id' => $order->id, 'state_id' => State::approved()->id]
-        );
     }
 }

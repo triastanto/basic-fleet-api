@@ -15,10 +15,14 @@ class Workflow
             ->exists();
     }
 
-    public function performTransition(Model $entity, State $to): void
+    public function performTransition(Model $entity, State $to): bool
     {
-        $entity->state()->associate($to);
-        $entity->save();
+        // TODO: need to implement InvalidTransitionException
+        if ($this->isValidTransition($entity->state, $to)) {
+            $entity->state()->associate($to);
+            return $entity->save();
+        }
+        return false;
     }
 
     public function getCurrentState(Model $entity): State

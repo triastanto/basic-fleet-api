@@ -8,4 +8,5 @@ enum State : int
     case APPROVED = 2;
     case ON_THE_WAY = 3;
     case RETURNED = 4;
+    case REJECTED = 5;
 }

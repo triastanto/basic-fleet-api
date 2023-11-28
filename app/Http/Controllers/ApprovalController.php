@@ -14,4 +14,11 @@ class ApprovalController extends Controller
 
         return response($order, 201);
     }
+
+    public function reject(Order $order): Response
+    {
+        $order->performTransition(State::rejected());
+
+        return response($order, 201);
+    }
 }

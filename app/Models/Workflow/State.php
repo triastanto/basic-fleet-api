@@ -33,4 +33,9 @@ class State extends Model
     {
         return static::find(EnumsState::RETURNED);
     }
+
+    public static function rejected(): static
+    {
+        return static::find(EnumsState::REJECTED);
+    }
 }

@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('orders', OrderController::class)->only('store');
     Route::post('orders/{order}/approve', [ApprovalController::class, 'approve'])
         ->name('orders.approve');
+    Route::post('orders/{order}/reject', [ApprovalController::class, 'reject'])
+        ->name('orders.reject');
     Route::apiResource('drivers.review', DriverReviewController::class)
         ->only('store');
 });

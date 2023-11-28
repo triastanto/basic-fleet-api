@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Enums\State;
-use App\Models\Workflow\State as WorkflowState;
+use App\Enums\State as EnumsState;
+use App\Enums\Transition as EnumsTransition;
+use App\Models\Workflow\State;
+use App\Models\Workflow\Transition;
 use Illuminate\Database\Seeder;
 
 class WorkflowSeeder extends Seeder
@@ -13,17 +15,38 @@ class WorkflowSeeder extends Seeder
      */
     public function run(): void
     {
-        WorkflowState::create([
-            'id' => State::WAITING_APPROVAL, 'name' => 'Waiting Approval'
+        State::create(['id' => EnumsState::WAITING_APPROVAL, 'name' => 'Waiting Approval']);
+        State::create(['id' => EnumsState::APPROVED, 'name' => 'Approved']);
+        State::create(['id' => EnumsState::ON_THE_WAY, 'name' => 'On The Way']);
+        State::create(['id' => EnumsState::RETURNED, 'name' => 'Returned']);
+        State::create(['id' => EnumsState::REJECTED, 'name' => 'Rejected']);
+
+        Transition::create([
+            'id' => EnumsTransition::APPROVE,
+            'name' => "Approve",
+            'from_id' => EnumsState::WAITING_APPROVAL,
+            'to_id' => EnumsState::APPROVED
         ]);
-        WorkflowState::create([
-            'id' => State::APPROVED, 'name' => 'Approved'
+
+        Transition::create([
+            'id' => EnumsTransition::DRIVE_TO_DEST,
+            'name' => "Drive to Destination",
+            'from_id' => EnumsState::APPROVED,
+            'to_id' => EnumsState::ON_THE_WAY
         ]);
-        WorkflowState::create([
-            'id' => State::ON_THE_WAY, 'name' => 'On The Way'
+
+        Transition::create([
+            'id' => EnumsTransition::END_TRIP,
+            'name' => "End Trip",
+            'from_id' => EnumsState::ON_THE_WAY,
+            'to_id' => EnumsState::RETURNED
         ]);
-        WorkflowState::create([
-            'id' => State::RETURNED, 'name' => 'Returned'
+
+        Transition::create([
+            'id' => EnumsTransition::REJECT,
+            'name' => "Reject",
+            'from_id' => EnumsState::WAITING_APPROVAL,
+            'to_id' => EnumsState::REJECTED
         ]);
     }
 }

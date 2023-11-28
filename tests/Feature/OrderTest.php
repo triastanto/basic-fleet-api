@@ -10,6 +10,7 @@ use App\Models\Vehicle;
 use App\Models\Workflow\State;
 use App\Services\EOSAPI;
 use Carbon\Carbon;
+use Database\Seeders\WorkflowSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -77,5 +78,56 @@ class OrderTest extends TestCase
 
         $this->assertNotNull(Order::first()->driver_review);
         $this->assertNotNull(Order::first()->approver);
+    }
+
+    /** @test */
+    public function and_order_has_valid_initial_state(): void
+    {
+        // prepare the states and transitions
+        $this->seed(WorkflowSeeder::class);
+    }
+
+    /** @test */
+    public function an_approver_approve_order(): void
+    {
+        $approver = $this->auth();
+
+        // prepare the states and transitions
+        $this->seed(WorkflowSeeder::class);
+
+        $order = Order::factory()->create([
+            'approver_id' => $approver->id,
+            'state_id' => State::waitingApproval()->id,
+        ]);
+
+        $this->postJson(route('orders.approve', ['order' => $order]))
+        ->assertCreated();
+
+    $this->assertDatabaseHas(
+        'orders',
+        ['id' => $order->id, 'state_id' => State::approved()->id]
+    );
+    }
+
+    /** @test */
+    public function an_approver_reject_order(): void
+    {
+        $approver = $this->auth();
+
+        // prepare the states and transitions
+        $this->seed(WorkflowSeeder::class);
+
+        $order = Order::factory()->create([
+            'approver_id' => $approver->id,
+            'state_id' => State::waitingApproval()->id,
+        ]);
+
+        $this->postJson(route('orders.reject', ['order' => $order]))
+            ->assertCreated();
+
+        $this->assertDatabaseHas(
+            'orders',
+            ['id' => $order->id, 'state_id' => State::rejected()->id]
+        );
     }
 }

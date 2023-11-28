@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Models\Driver;
-use App\Models\DriverReview;
 use App\Models\Vehicle;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
