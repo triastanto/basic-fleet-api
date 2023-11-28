@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\Workflow\State;
 use App\Services\EOSAPI;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,6 +35,9 @@ class OrderTest extends TestCase
         Driver::factory()->create(
             ['vehicle_id' => Vehicle::factory()->even()->create()->id]
         );
+
+        // Initial state 1 => new
+        State::factory()->create();
 
         // required attributes for order
         $sa = Carbon::instance(fake()->dateTimeThisMonth())->toDateTimeString();

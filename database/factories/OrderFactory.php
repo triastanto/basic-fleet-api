@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\DriverReview;
 use App\Models\Place;
 use App\Models\User;
+use App\Models\Workflow\State;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -31,7 +32,7 @@ class OrderFactory extends Factory
             ],
             'driver_review_id' => DriverReview::factory()->create()->id,
             'approver_id' => User::factory()->create()->id,
-            'status' => 'waiting_approval',
+            'state_id' => State::factory()->create()->id,
         ];
     }
 }

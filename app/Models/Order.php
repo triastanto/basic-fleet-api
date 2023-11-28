@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasWorkflow;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, HasWorkflow;
 
     protected $guarded = [];
 

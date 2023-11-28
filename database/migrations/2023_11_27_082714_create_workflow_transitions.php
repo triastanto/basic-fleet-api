@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicles', function (Blueprint $table) {
+        Schema::create('workflow_transitions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('make');
-            $table->string('model');
-            $table->string('year');
-            $table->string('plate_number');
-            $table->jsonb('meta');
-            $table->string('photo');
-            $table->enum('state', ['operational', 'maintenance', 'decomissioned']);
+            $table->foreignId('from_id')->references('id')->on('workflow_states');
+            $table->foreignId('to_id')->references('id')->on('workflow_states');
             $table->timestamps();
         });
     }
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicles');
+        Schema::dropIfExists('workflow_transitions');
     }
 };

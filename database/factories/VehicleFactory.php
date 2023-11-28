@@ -22,7 +22,7 @@ class VehicleFactory extends Factory
             'model' => fake()->word,
             'year' => fake()->year,
             'photo' => fake()->imageUrl(640, 480, 'vehicle', true),
-            'status' => fake()->randomElement(
+            'state' => fake()->randomElement(
                 ['operational', 'maintenance', 'decomissioned']
             )
         ];

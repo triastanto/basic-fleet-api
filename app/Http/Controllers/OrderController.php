@@ -18,10 +18,11 @@ class OrderController extends Controller
             'driver_id' => Driver::available()->first()?->id,
         ]);
 
+        // TODO: need to implement initial state
         $attributes = $request->merge([
             'driver_review_id' => $driver_review->id,
             'approver_id' => User::getApprover($personnel_no)->id,
-            'status' => 'waiting_approval',
+            'state_id' => 1,
         ])->all();
 
         $order = Order::create($attributes);
