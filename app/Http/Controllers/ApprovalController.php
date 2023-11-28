@@ -10,8 +10,7 @@ class ApprovalController extends Controller
 {
     public function approve(Order $order): Response
     {
-        // TODO: need to implement state enum
-        $order->performTransition(State::find(2));
+        $order->performTransition(State::approved());
 
         return response($order, 201);
     }

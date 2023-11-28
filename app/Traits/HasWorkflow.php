@@ -4,10 +4,18 @@ namespace App\Traits;
 
 use App\Models\Workflow\State;
 use App\Services\Workflow;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasWorkflow
 {
+    protected static function booted(): void
+    {
+        static::created(function (Model $model) {
+            $model->state()->associate(State::waitingApproval());
+        });
+    }
+
     public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);

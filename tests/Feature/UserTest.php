@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Workflow\State;
-use App\Models\Workflow\Transition;
 use App\Services\EOSAPI;
+use Database\Seeders\WorkflowSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -45,33 +45,18 @@ class UserTest extends TestCase
     /** @test */
     public function an_approver_approve_order(): void
     {
-        $user = $this->auth();
+        $approver = $this->auth();
+        $this->seed(WorkflowSeeder::class);
+        $order = Order::factory()->create(['approver_id' => $approver->id]);
 
-        // define transitions from 1 => waiting_approval
-        // to 2 => approved
-        $from = State::factory()->create(['name' => 'waiting_approval']);
-        $to = State::factory()->create(['name' => 'approved']);
-        $transition = Transition::factory()->create([
-            'name' => 'approve',
-            'from_id' => $from->id,
-            'to_id' => $to->id,
-        ]);
-        $order = Order::factory()->create([
-            'approver_id' => $user->id,
-            'state_id' => $from->id,
-        ]);
-
-        $this->assertDatabaseHas(
-            'orders',
-            ['id' => $order->id, 'state_id' => $transition->from->id]
-        );
+        $this->assertEquals($order->state, State::waitingApproval());
 
         $this->postJson(route('orders.approve', ['order' => $order]))
             ->assertCreated();
 
         $this->assertDatabaseHas(
             'orders',
-            ['id' => $order->id, 'state_id' => $transition->to->id]
+            ['id' => $order->id, 'state_id' => State::approved()->id]
         );
     }
 }
