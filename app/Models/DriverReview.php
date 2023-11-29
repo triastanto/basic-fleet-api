@@ -16,4 +16,12 @@ class DriverReview extends Model
     {
         return $this->belongsTo(Driver::class);
     }
+
+    public static function createWithAvailable(): static
+    {
+        return DriverReview::create([
+            'driver_id' => Driver::available()->first()?->id,
+        ]);
+    }
+
 }

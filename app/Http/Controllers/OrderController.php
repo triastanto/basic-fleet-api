@@ -13,16 +13,10 @@ class OrderController extends Controller
 {
     public function store(Request $request): Response
     {
-        $personnel_no = auth()->user()->meta['personnel_no'];
-        $driver_review = DriverReview::create([
-            'driver_id' => Driver::available()->first()?->id,
-        ]);
-
-        // TODO: need to implement initial state
+        // TODO: need to implement the driver selection
         $attributes = $request->merge([
-            'driver_review_id' => $driver_review->id,
-            'approver_id' => User::getApprover($personnel_no)->id,
-            'state_id' => 1,
+            'driver_review_id' => DriverReview::createWithAvailable()->id,
+            'approver_id' => User::getApprover(auth()->user()->meta['personnel_no'])->id,
         ])->all();
 
         $order = Order::create($attributes);

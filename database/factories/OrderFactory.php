@@ -32,7 +32,6 @@ class OrderFactory extends Factory
             ],
             'driver_review_id' => DriverReview::factory()->create()->id,
             'approver_id' => User::factory()->create()->id,
-            // 'state_id' => State::factory()->create()->id,
         ];
     }
 }

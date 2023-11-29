@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasWorkflow
 {
-    protected static function booted(): void
+    protected static function workflowBooted(): void
     {
-        static::created(function (Model $model) {
+        static::creating(function (Model $model) {
             $model->state()->associate(State::waitingApproval());
         });
     }

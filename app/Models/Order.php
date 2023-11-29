@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
-    use HasFactory, HasWorkflow;
+    use HasFactory;
+    use HasWorkflow;
 
     protected $guarded = [];
 
@@ -17,6 +18,11 @@ class Order extends Model
         'scheduled_at' => 'immutable_datetime',
         'meta' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        parent::workflowBooted();
+    }
 
     public function customer(): BelongsTo
     {
