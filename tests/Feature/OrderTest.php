@@ -4,12 +4,14 @@ namespace Tests\Feature;
 
 use App\Enums\State as EnumsState;
 use App\Models\Driver;
+use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\Workflow\State;
 use App\Services\EOSAPI;
+use App\Services\Workflow;
 use Carbon\Carbon;
 use Database\Seeders\WorkflowSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,6 +21,12 @@ use Tests\TestCase;
 class OrderTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(WorkflowSeeder::class);
+    }
 
     /** @test */
     public function a_customer_can_create_an_order_with_default_values(): void
@@ -37,9 +45,6 @@ class OrderTest extends TestCase
         Driver::factory()->create(
             ['vehicle_id' => Vehicle::factory()->even()->create()->id]
         );
-
-        // Initial state 1 => new
-        State::factory()->create();
 
         // required attributes for order
         $sa = Carbon::instance(fake()->dateTimeThisMonth())->toDateTimeString();
@@ -82,20 +87,13 @@ class OrderTest extends TestCase
     }
 
     /** @test */
-    public function and_order_has_valid_initial_state(): void
-    {
-        $this->seed(WorkflowSeeder::class);
-        $order = Order::factory()->create();
-
-        $this->assertEquals($order->state, State::waitingApproval());
-    }
-
-    /** @test */
     public function an_approver_approve_order(): void
     {
         $approver = $this->auth();
-        $this->seed(WorkflowSeeder::class);
-        $order = Order::factory()->create(['approver_id' => $approver->id]);
+        $order = Order::factory()->create([
+            'approver_id' => $approver->id,
+            'state_id' => Workflow::getInstance()->getInitialState()->id,
+        ]);
 
         $this->postJson(route('orders.approve', ['order' => $order]))
             ->assertCreated();
@@ -109,14 +107,57 @@ class OrderTest extends TestCase
     public function an_approver_reject_order(): void
     {
         $approver = $this->auth();
-        $this->seed(WorkflowSeeder::class);
-        $order = Order::factory()->create(['approver_id' => $approver->id]);
+        $order = Order::factory()->create([
+            'approver_id' => $approver->id,
+            'state_id' => Workflow::getInstance()->getInitialState()->id,
+        ]);
 
         $this->postJson(route('orders.reject', ['order' => $order]))
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
             ['id' => $order->id, 'state_id' => EnumsState::REJECTED]
+        );
+    }
+
+    /** @test */
+    public function a_customer_replaces_driver(): void
+    {
+        $customer = $this->auth();
+        $order = Order::factory()->create(['customer_id' => $customer->id]);
+        $driver = $order->driver_review->driver;
+
+        $this->postJson(
+            route('orders.driver', ['order' => $order]),
+            ['driver' => $driver]
+        )
+            ->assertCreated();
+
+        $this->assertDatabaseHas(
+            'driver_reviews',
+            ['id' => $order->driver_review->id, 'driver_id' => $driver->id]
+        );
+    }
+
+    /** @test */
+    public function a_driver_starts_trip(): void
+    {
+        // TODO: implement guard for driver
+        $this->auth();
+
+        $driver = Driver::factory()->create();
+        $driver_review = DriverReview::factory()->create(['driver_id' => $driver->id]);
+        $order = Order::factory()->create([
+            'driver_review_id' => $driver_review->id,
+            'state_id' => EnumsState::APPROVED
+        ]);
+
+        // TODO: add image, initial_odo, latitude, longitude
+        $this->postJson(route('orders.start', ['order' => $order]))
+            ->assertCreated();
+        $this->assertDatabaseHas(
+            'orders',
+            ['id' => $order->id, 'state_id' => EnumsState::ON_THE_WAY]
         );
     }
 }

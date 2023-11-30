@@ -17,7 +17,7 @@ class StateFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'New (factory)',
+            'name' => 'New (State Factory)',
         ];
     }
 }

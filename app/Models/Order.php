@@ -19,11 +19,6 @@ class Order extends Model
         'meta' => 'array',
     ];
 
-    protected static function booted(): void
-    {
-        parent::workflowBooted();
-    }
-
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class);

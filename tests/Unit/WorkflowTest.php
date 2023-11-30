@@ -19,7 +19,7 @@ class WorkflowTest extends TestCase
         $transition = Transition::factory()->create();
         $from = $transition->from;
         $to = $transition->to;
-        $workflow = new Workflow();
+        $workflow = new Workflow(State::first());
 
         $this->assertTrue($workflow->isValidTransition($from, $to));
         $this->assertFalse($workflow->isValidTransition($to, $from));

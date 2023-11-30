@@ -19,8 +19,8 @@ class TransitionFactory extends Factory
     {
         return [
             'name' => 'start',
-            'from_id' => State::factory()->create(['name' => 'new'])->id,
-            'to_id' => State::factory()->create(['name' => 'in_progress'])->id,
+            'from_id' => State::factory()->create(['name' => 'New (Transition Factory)'])->id,
+            'to_id' => State::factory()->create(['name' => 'In Progress (Transition Factory)'])->id,
         ];
     }
 }

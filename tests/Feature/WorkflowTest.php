@@ -20,12 +20,12 @@ class WorkflowTest extends TestCase
 
         // order entity with initial state 1 => new defined above
         // and then assert the initial state
-        $order = Order::factory()->create(['state_id' => 1]);
+        $order = Order::factory()->create(['state_id' => State::find(1)->id]);
+
         $this->assertEquals(State::first(), $order->getCurrentState());
 
         // test a valid state destination
         $this->assertTrue($order->isValidTransition(State::find(2)));
-
         // perform a valid transition and assert the current state
         $order->performTransition(State::find(2));
         $this->assertEquals(State::find(2), $order->getCurrentState());

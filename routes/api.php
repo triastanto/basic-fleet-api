@@ -18,10 +18,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('orders', OrderController::class)->only('store');
-    Route::post('orders/{order}/approve', [ApprovalController::class, 'approve'])
-        ->name('orders.approve');
-    Route::post('orders/{order}/reject', [ApprovalController::class, 'reject'])
-        ->name('orders.reject');
+    Route::prefix('orders/{order}')->name('orders.')->group(function () {
+        Route::post('approve', [ApprovalController::class, 'approve'])->name('approve');
+        Route::post('reject', [ApprovalController::class, 'reject'])->name('reject');
+        Route::post('driver', [OrderController::class, 'driver'])->name('driver');
+        Route::post('start', [OrderController::class, 'start'])->name('start');
+    });
     Route::apiResource('drivers.review', DriverReviewController::class)
         ->only('store');
 });

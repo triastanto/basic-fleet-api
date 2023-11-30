@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\EOSAPI;
+use App\Services\Workflow;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(EOSAPI::class, function () {
             return new EOSAPI();
+        });
+
+        $this->app->singleton(Workflow::class, function () {
+            return Workflow::getInstance();
         });
     }
 }
