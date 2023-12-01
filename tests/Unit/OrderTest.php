@@ -6,13 +6,10 @@ use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function an_order_belongs_to_customer(): void
     {

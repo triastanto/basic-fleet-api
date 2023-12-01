@@ -4,14 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Services\EOSAPI;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
-use Tests\TestCase;
+use Tests\FeatureTestCase;
 
-class UserTest extends TestCase
+class UserTest extends FeatureTestCase
 {
-    use RefreshDatabase;
-
     protected function approver($user): User
     {
         // intended user's approver

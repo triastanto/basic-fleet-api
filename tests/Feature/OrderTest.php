@@ -9,28 +9,26 @@ use App\Models\Order;
 use App\Models\Place;
 use App\Models\User;
 use App\Models\Vehicle;
-use App\Models\Workflow\State;
 use App\Services\EOSAPI;
 use App\Services\Workflow;
 use Carbon\Carbon;
-use Database\Seeders\WorkflowSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
-use Tests\TestCase;
+use Tests\FeatureTestCase;
 
-class OrderTest extends TestCase
+class OrderTest extends FeatureTestCase
 {
-    use RefreshDatabase;
+    protected Workflow $workflow;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed(WorkflowSeeder::class);
+        $this->workflow = $this->app->make(Workflow::class);
     }
 
     /** @test */
     public function a_customer_can_create_an_order_with_default_values(): void
     {
+
         // authenticated user
         $customer = $this->auth();
 
@@ -90,9 +88,8 @@ class OrderTest extends TestCase
     public function an_approver_approve_order(): void
     {
         $approver = $this->auth();
-        $order = Order::factory()->create([
+        $order = Order::factory()->initialState()->create([
             'approver_id' => $approver->id,
-            'state_id' => Workflow::getInstance()->getInitialState()->id,
         ]);
 
         $this->postJson(route('orders.approve', ['order' => $order]))
@@ -107,9 +104,8 @@ class OrderTest extends TestCase
     public function an_approver_reject_order(): void
     {
         $approver = $this->auth();
-        $order = Order::factory()->create([
+        $order = Order::factory()->initialState()->create([
             'approver_id' => $approver->id,
-            'state_id' => Workflow::getInstance()->getInitialState()->id,
         ]);
 
         $this->postJson(route('orders.reject', ['order' => $order]))
@@ -124,7 +120,9 @@ class OrderTest extends TestCase
     public function a_customer_replaces_driver(): void
     {
         $customer = $this->auth();
-        $order = Order::factory()->create(['customer_id' => $customer->id]);
+        $order = Order::factory()->initialState()->create([
+            'customer_id' => $customer->id,
+        ]);
         $driver = $order->driver_review->driver;
 
         $this->postJson(
@@ -149,7 +147,7 @@ class OrderTest extends TestCase
         $driver_review = DriverReview::factory()->create(['driver_id' => $driver->id]);
         $order = Order::factory()->create([
             'driver_review_id' => $driver_review->id,
-            'state_id' => EnumsState::APPROVED
+            'state_id' => EnumsState::APPROVED->value
         ]);
 
         // TODO: add image, initial_odo, latitude, longitude
@@ -157,7 +155,7 @@ class OrderTest extends TestCase
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
-            ['id' => $order->id, 'state_id' => EnumsState::ON_THE_WAY]
+            ['id' => $order->id, 'state_id' => EnumsState::ON_THE_WAY->value]
         );
     }
 }

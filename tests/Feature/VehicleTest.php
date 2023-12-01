@@ -3,13 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Vehicle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\FeatureTestCase;
 
-class VehicleTest extends TestCase
+class VehicleTest extends FeatureTestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function verify_odd_plate_number(): void
     {

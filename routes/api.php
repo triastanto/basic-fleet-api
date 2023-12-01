@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DriverReviewController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
@@ -19,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('orders', OrderController::class)->only('store');
     Route::prefix('orders/{order}')->name('orders.')->group(function () {
-        Route::post('approve', [ApprovalController::class, 'approve'])->name('approve');
-        Route::post('reject', [ApprovalController::class, 'reject'])->name('reject');
+        Route::post('approve', [OrderController::class, 'approve'])->name('approve');
+        Route::post('reject', [OrderController::class, 'reject'])->name('reject');
         Route::post('driver', [OrderController::class, 'driver'])->name('driver');
         Route::post('start', [OrderController::class, 'start'])->name('start');
     });

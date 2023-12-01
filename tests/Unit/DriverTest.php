@@ -7,13 +7,10 @@ use App\Models\Vehicle;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\Sequence;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DriverTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @test */
     public function a_driver_has_many_driver_reviews(): void
     {
@@ -77,7 +74,7 @@ class DriverTest extends TestCase
         $evenDrivers = Driver::oddOrEvenByDate($evenDate);
 
         $this->assertTrue($evenDrivers->every(
-            fn (Driver $driver) => $driver->hasEven()
+            fn(Driver $driver) => $driver->hasEven()
         ));
     }
 
@@ -96,7 +93,7 @@ class DriverTest extends TestCase
         $oddDrivers = Driver::oddOrEvenByDate($oddDate);
 
         $this->assertTrue($oddDrivers->every(
-            fn (Driver $driver) => $driver->hasOdd()
+            fn(Driver $driver) => $driver->hasOdd()
         ));
     }
 
@@ -118,13 +115,13 @@ class DriverTest extends TestCase
         switch ($toggle) {
             case 'even':
                 $this->assertTrue($oddOrEvenDrivers->every(
-                    fn (Driver $driver) => $driver->hasEven()
+                    fn(Driver $driver) => $driver->hasEven()
                 ));
                 break;
 
             case 'odd':
                 $this->assertTrue($oddOrEvenDrivers->every(
-                    fn (Driver $driver) => $driver->hasOdd()
+                    fn(Driver $driver) => $driver->hasOdd()
                 ));
                 break;
         }

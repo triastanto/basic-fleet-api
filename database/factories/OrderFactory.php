@@ -6,6 +6,7 @@ use App\Models\DriverReview;
 use App\Models\Place;
 use App\Models\User;
 use App\Models\Workflow\State;
+use App\Services\Workflow;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -34,5 +35,17 @@ class OrderFactory extends Factory
             'approver_id' => User::factory()->create()->id,
             'state_id' => State::factory()->create()->id,
         ];
+    }
+
+    public function initialState(): Factory
+    {
+        return $this->state(function (array $attributes) {
+            /** @var \App\Enums\State $initialState */
+            $initialState = app()->make(Workflow::class)->getInitialState();
+
+            return [
+                'state_id' => $initialState->value,
+            ];
+        });
     }
 }

@@ -8,7 +8,6 @@ use Tests\TestCase;
 
 class VehicleTest extends TestCase
 {
-
     /** @test */
     public function a_vehicle_has_driver(): void
     {
