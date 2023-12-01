@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Workflow\State;
-use App\Models\Workflow\Transition;
+use App\Enums\State;
+use App\Enums\Transition;
+use App\Models\Workflow\State as ModelState;
+use App\Models\Workflow\Transition as ModelTransition;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,17 +14,17 @@ class Workflow
     private static Workflow $instance;
     protected State $initialState;
 
-    public static function getInstance(): Workflow
+    public static function getInstance(State $initialState): Workflow
     {
         if (!isset(self::$instance)) {
-            self::$instance = new static(State::waitingApproval());
+            self::$instance = new static($initialState);
         }
         return self::$instance;
     }
 
     public function __construct(State $initialState)
     {
-        $this->initialState = $initialState;
+        $this->setinitialState($initialState);
     }
 
     public function getInitialState(): State
@@ -30,28 +32,44 @@ class Workflow
         return $this->initialState;
     }
 
-    public function isValidTransition(State $from, State $to): bool
+    public function setinitialState(State $initialState): void
     {
-        return Transition::where('from_id', $from->id)
-            ->where('to_id', $to->id)
+        $this->initialState = $initialState;
+    }
+
+    public function getCurrentState(Model $model): State
+    {
+        return State::from($model->state->id);
+    }
+
+    public function applyTransition(Model $model, Transition $transition): void
+    {
+        $to = State::from($this->findTransition($transition)->to->id);
+        $from = $this->getCurrentState($model);
+
+        // TODO: need to implement InvalidTransitionException
+        if ($this->isValidTransition($from, $to)) {
+            $this->setCurrentState($model, $to);
+        } else {
+            throw new Exception("InvalidTransitionExeption");
+        }
+    }
+
+    protected function isValidTransition(State $from, State $to): bool
+    {
+        return ModelTransition::where('from_id', $from->value)
+            ->where('to_id', $to->value)
             ->exists();
     }
 
-    // TODO: need to implement applyTransition method
-    public function performTransition(Model $entity, State $to): void
+    protected function findTransition(Transition $transition): ModelTransition
     {
-        if ($this->isValidTransition($entity->state, $to)) {
-            $entity->state()->associate($to);
-            $entity->save();
-        } else {
-            // TODO: need to implement InvalidTransitionException
-            throw new Exception("InvalidTransitionException");
-        }
-
+        return ModelTransition::find($transition->value);
     }
 
-    public function getCurrentState(Model $entity): State
+    protected function setCurrentState(Model $model, State $to)
     {
-        return $entity->state;
+        $model->state()->associate(ModelState::find($to->value));
+        $model->save();
     }
 }

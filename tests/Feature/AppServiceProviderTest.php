@@ -1,12 +1,13 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use App\Services\EOSAPI;
+use App\Services\Workflow;
 use Illuminate\Support\Facades\Config;
-use Tests\TestCase;
+use Tests\FeatureTestCase;
 
-class AppServiceProviderTest extends TestCase
+class AppServiceProviderTest extends FeatureTestCase
 {
     /** @test */
     public function eosapi_is_registered_as_singleton(): void
@@ -17,5 +18,13 @@ class AppServiceProviderTest extends TestCase
         $eosapi = $this->app->make(EOSAPI::class);
 
         $this->assertInstanceOf(EOSAPI::class, $eosapi);
+    }
+
+    /** @test */
+    public function workflow_is_registered_as_singleton(): void
+    {
+        $workflow = $this->app->make(Workflow::class);
+
+        $this->assertInstanceOf(Workflow::class, $workflow);
     }
 }

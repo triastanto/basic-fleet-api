@@ -2,35 +2,33 @@
 
 namespace Tests\Feature;
 
+use App\Enums\State;
+use App\Enums\Transition;
 use App\Models\Order;
-use App\Models\Workflow\State;
-use App\Models\Workflow\Transition;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Services\Workflow;
+use Tests\FeatureTestCase;
 use Tests\TestCase;
 
-class WorkflowTest extends TestCase
+class WorkflowTest extends FeatureTestCase
 {
-    use RefreshDatabase;
+    protected Workflow $workflow;
 
     /** @test */
-    public function order_simple_workflow(): void
+    public function it_can_apply_transition(): void
     {
-        // define transitions from 1 => new to 2 => in progress
-        Transition::factory()->create();
+        $this->workflow = $this->app->make(Workflow::class);
+        $order = Order::factory()->initialState()->create();
 
-        // order entity with initial state 1 => new defined above
-        // and then assert the initial state
-        $order = Order::factory()->create(['state_id' => State::find(1)->id]);
+        $this->assertDatabaseHas(
+            'orders',
+            ['id' => $order->id, 'state_id' => State::WAITING_APPROVAL->value]
+        );
 
-        $this->assertEquals(State::first(), $order->getCurrentState());
+        $this->workflow->applyTransition($order, Transition::APPROVE);
 
-        // test a valid state destination
-        $this->assertTrue($order->isValidTransition(State::find(2)));
-        // perform a valid transition and assert the current state
-        $order->performTransition(State::find(2));
-        $this->assertEquals(State::find(2), $order->getCurrentState());
-
-        // test a invalid state destination
-        $this->assertFalse($order->isValidTransition(State::find(2)));
+        $this->assertDatabaseHas(
+            'orders',
+            ['id' => $order->id, 'state_id' => State::APPROVED->value]
+        );
     }
 }
