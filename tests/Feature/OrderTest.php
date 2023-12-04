@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Enums\State;
 use App\Models\Cost;
 use App\Models\Driver;
-use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\TrackingNumber;
@@ -14,6 +13,7 @@ use App\Models\Vehicle;
 use App\Services\EOSAPI;
 use App\Services\Workflow;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Mockery\MockInterface;
 use Tests\FeatureTestCase;
 
@@ -25,6 +25,83 @@ class OrderTest extends FeatureTestCase
     {
         parent::setUp();
         $this->workflow = $this->app->make(Workflow::class);
+    }
+
+    private function arrangeNewOrderData(): void
+    {
+        // mock customer's approver
+        User::factory()->create(['meta->personnel_no' => 99999]);
+        $this->mock(EOSAPI::class, function (MockInterface $mock) {
+            $mock->shouldReceive('minManagerBoss')
+                ->andReturn(["personnel_no" => 99999]);
+        });
+
+        // prepare drivers and even & odd plate number vehicles
+        Driver::factory()
+            ->count(2)
+            ->state(new Sequence(
+                ['vehicle_id' => Vehicle::factory()->odd()->create()->id],
+                ['vehicle_id' => Vehicle::factory()->even()->create()->id],
+            ))
+            ->create();
+    }
+
+    private function createNewOrderAttributes(
+        Carbon $scheduled_at,
+        bool $is_odd_even
+    ): array {
+        $attributes = [
+            'customer_id' => $this->auth()->id,
+            'pickup_id' => Place::factory()->create()->id,
+            'dropoff_id' => Place::factory()->create()->id,
+            'scheduled_at' => $scheduled_at,
+        ];
+
+        $title = fake()->sentence();
+        $pickup_details = fake()->address();
+
+        return [
+            'post' => array_merge($attributes, [
+                'meta' => [
+                    'title' => $title,
+                    'pickup_details' => $pickup_details,
+                    'is_odd_even' => $is_odd_even,
+                ]
+            ]),
+            'assert' => array_merge($attributes, [
+                'meta->title' => $title,
+                'meta->pickup_details' => $pickup_details,
+                'meta->is_odd_even' => $is_odd_even,
+            ])
+        ];
+    }
+
+    private function isOdd($number): bool
+    {
+        return $number % 2 == 0;
+    }
+
+    private function isEven($number): bool
+    {
+        return $number % 2 > 0;
+    }
+
+    /** @test */
+    public function a_customer_create_an_order_with_odd_even_toggle(): void
+    {
+        $this->arrangeNewOrderData();
+        $scheduled_at = Carbon::instance(fake()->dateTimeThisMonth());
+        extract($this->createNewOrderAttributes($scheduled_at, true));
+
+        $this->postJson(route('orders.store'), $post)->assertCreated();
+        dd(Order::first()->driver_review->driver->vehicle->toArray());
+
+        // make sure the day is matched with the odd even vehicle plate number selection
+
+        $this->assertDatabaseHas('orders', $assert);
+        $this->assertNotNull(Order::first()->driver_review);
+        $this->assertNotNull(Order::first()->approver);
+
     }
 
     /** @test */
