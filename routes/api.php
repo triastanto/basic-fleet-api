@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('driver', [OrderController::class, 'driver'])->name('driver');
         Route::post('start', [OrderController::class, 'start'])->name('start');
         Route::post('costs', [OrderController::class, 'costs'])->name('costs');
+        Route::post('end', [OrderController::class, 'end'])->name('end');
     });
     Route::apiResource('drivers.review', DriverReviewController::class)
         ->only('store');

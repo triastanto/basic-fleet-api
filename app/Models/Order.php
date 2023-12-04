@@ -49,4 +49,9 @@ class Order extends Model
     {
         return $this->hasMany(Cost::class);
     }
+
+    public function tracking_numbers(): HasMany
+    {
+        return $this->hasMany(TrackingNumber::class);
+    }
 }

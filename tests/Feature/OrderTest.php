@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Enums\State as EnumsState;
+use App\Enums\State;
 use App\Models\Cost;
 use App\Models\Driver;
 use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
+use App\Models\TrackingNumber;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Services\EOSAPI;
@@ -27,7 +28,7 @@ class OrderTest extends FeatureTestCase
     }
 
     /** @test */
-    public function a_customer_can_create_an_order_with_default_values(): void
+    public function a_customer_create_an_order_with_default_values(): void
     {
 
         // authenticated user
@@ -97,7 +98,7 @@ class OrderTest extends FeatureTestCase
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
-            ['id' => $order->id, 'state_id' => EnumsState::APPROVED]
+            ['id' => $order->id, 'state_id' => State::APPROVED]
         );
     }
 
@@ -113,7 +114,7 @@ class OrderTest extends FeatureTestCase
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
-            ['id' => $order->id, 'state_id' => EnumsState::REJECTED]
+            ['id' => $order->id, 'state_id' => State::REJECTED]
         );
     }
 
@@ -144,30 +145,27 @@ class OrderTest extends FeatureTestCase
         // TODO: implement guard for driver
         $this->auth();
 
-        $driver_review = DriverReview::factory()->create();
         $order = Order::factory()->create([
-            'driver_review_id' => $driver_review->id,
-            'state_id' => EnumsState::APPROVED->value
+            'state_id' => State::APPROVED->value
         ]);
+        $tn = TrackingNumber::factory()->raw(['order_id' => $order->id]);
 
-        // TODO: add image, initial_odo, latitude, longitude
-        $this->postJson(route('orders.start', ['order' => $order]))
+        $this->postJson(route('orders.start', ['order' => $order]), $tn)
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
-            ['id' => $order->id, 'state_id' => EnumsState::ON_THE_WAY->value]
+            ['id' => $order->id, 'state_id' => State::ON_THE_WAY->value]
         );
+        $this->assertDatabaseHas('tracking_numbers', $tn);
     }
 
     /** @test */
-    public function a_driver_can_input_cost(): void
+    public function a_driver_input_cost(): void
     {
         $this->auth();
 
-        $driver_review = DriverReview::factory()->create();
         $order = Order::factory()->create([
-            'driver_review_id' => $driver_review->id,
-            'state_id' => EnumsState::ON_THE_WAY->value
+            'state_id' => State::ON_THE_WAY->value
         ]);
         $costs = Cost::factory()->count(3)->make(['order_id' => $order->id]);
 
@@ -180,5 +178,24 @@ class OrderTest extends FeatureTestCase
         $costs->each(
             fn ($cost) => $this->assertDatabaseHas('costs', $cost->toArray())
         );
+    }
+
+    /** @test */
+    public function a_driver_ends_the_trip(): void
+    {
+        $this->auth();
+
+        $order = Order::factory()->create(
+            ['state_id' => State::ON_THE_WAY->value]
+        );
+        $tn = TrackingNumber::factory()->raw(['order_id' => $order->id]);
+
+        $this->postJson(route('orders.end', ['order' => $order]), $tn)
+            ->assertCreated();
+        $this->assertDatabaseHas(
+            'orders',
+            ['id' => $order->id, 'state_id' => State::RETURNED->value]
+        );
+        $this->assertDatabaseHas('tracking_numbers', $tn);
     }
 }

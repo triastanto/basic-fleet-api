@@ -33,8 +33,9 @@ class OrderController extends Controller
         return response($order, 201);
     }
 
-    public function start(Order $order): Response
+    public function start(Request $request, Order $order): Response
     {
+        $order->tracking_numbers()->create($request->all());
         $order->applyTransition(Transition::DRIVE_TO_DEST);
 
         return response($order, 201);
@@ -60,4 +61,13 @@ class OrderController extends Controller
 
         return response($order, 201);
     }
+
+    public function end(Request $request, Order $order): Response
+    {
+        $order->tracking_numbers()->create($request->all());
+        $order->applyTransition(Transition::END_TRIP);
+
+        return response($order, 201);
+    }
+
 }
