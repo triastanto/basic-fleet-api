@@ -53,4 +53,11 @@ class OrderController extends Controller
 
         return response($order, 201);
     }
+
+    public function costs(Request $request, Order $order): Response
+    {
+        $order->costs()->createMany($request->costs);
+
+        return response($order, 201);
+    }
 }

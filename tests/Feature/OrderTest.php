@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\State as EnumsState;
+use App\Models\Cost;
 use App\Models\Driver;
 use App\Models\DriverReview;
 use App\Models\Order;
@@ -143,8 +144,7 @@ class OrderTest extends FeatureTestCase
         // TODO: implement guard for driver
         $this->auth();
 
-        $driver = Driver::factory()->create();
-        $driver_review = DriverReview::factory()->create(['driver_id' => $driver->id]);
+        $driver_review = DriverReview::factory()->create();
         $order = Order::factory()->create([
             'driver_review_id' => $driver_review->id,
             'state_id' => EnumsState::APPROVED->value
@@ -156,6 +156,29 @@ class OrderTest extends FeatureTestCase
         $this->assertDatabaseHas(
             'orders',
             ['id' => $order->id, 'state_id' => EnumsState::ON_THE_WAY->value]
+        );
+    }
+
+    /** @test */
+    public function a_driver_can_input_cost(): void
+    {
+        $this->auth();
+
+        $driver_review = DriverReview::factory()->create();
+        $order = Order::factory()->create([
+            'driver_review_id' => $driver_review->id,
+            'state_id' => EnumsState::ON_THE_WAY->value
+        ]);
+        $costs = Cost::factory()->count(3)->make(['order_id' => $order->id]);
+
+        $this->postJson(
+            route('orders.costs', ['order' => $order]),
+            ['costs' => $costs]
+        )
+            ->assertCreated();
+
+        $costs->each(
+            fn ($cost) => $this->assertDatabaseHas('costs', $cost->toArray())
         );
     }
 }
