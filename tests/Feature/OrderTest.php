@@ -76,16 +76,6 @@ class OrderTest extends FeatureTestCase
         ];
     }
 
-    private function isOdd($number): bool
-    {
-        return $number % 2 == 0;
-    }
-
-    private function isEven($number): bool
-    {
-        return $number % 2 > 0;
-    }
-
     /** @test */
     public function a_customer_create_an_order_with_odd_even_toggle(): void
     {
@@ -93,15 +83,24 @@ class OrderTest extends FeatureTestCase
         $scheduled_at = Carbon::instance(fake()->dateTimeThisMonth());
         extract($this->createNewOrderAttributes($scheduled_at, true));
 
-        $this->postJson(route('orders.store'), $post)->assertCreated();
-        dd(Order::first()->driver_review->driver->vehicle->toArray());
+        // $this->postJson(route('orders.store'), $post)->assertCreated();
+        $response = $this->postJson(route('orders.store'), $post);
+        $order = Order::find($response->json()['id']);
+        dd(
+            $scheduled_at->day,
+            $order->driver_review->driver->vehicle->plate_number,
+            $order->driver_review->driver->vehicle->meta,
+            $order->driver_review->driver->vehicle->hasEven(),
+            $order->driver_review->driver->vehicle->hasOdd(),
+        );
+
 
         // make sure the day is matched with the odd even vehicle plate number selection
+
 
         $this->assertDatabaseHas('orders', $assert);
         $this->assertNotNull(Order::first()->driver_review);
         $this->assertNotNull(Order::first()->approver);
-
     }
 
     /** @test */

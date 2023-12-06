@@ -10,14 +10,23 @@ use App\Models\User;
 use App\Services\Workflow;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Date;
 
 class OrderController extends Controller
 {
     public function store(Request $request): Response
     {
         // TODO: need to implement the driver selection
+        dd(
+            $request->meta['is_odd_even'],
+            Date::createFromTimeString($request->scheduled_at)
+        );
+        $scheduled_at = ($request->meta['is_odd_even'])
+            ? Date::createFromTimeString($request->scheduled_at) : null;
+
+
         $attributes = $request->merge([
-            'driver_review_id' => DriverReview::createWithAvailable()->id,
+            'driver_review_id' => DriverReview::createWithDriver()->id,
             'approver_id' => User::getApprover(auth()->user()->meta['personnel_no'])->id,
             'state_id' => app()->make(Workflow::class)->getInitialState()->value,
         ])->all();
@@ -69,5 +78,4 @@ class OrderController extends Controller
 
         return response($order, 201);
     }
-
 }
