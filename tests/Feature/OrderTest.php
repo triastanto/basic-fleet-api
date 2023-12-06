@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\State;
 use App\Models\Cost;
 use App\Models\Driver;
+use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\TrackingNumber;
@@ -25,25 +26,6 @@ class OrderTest extends FeatureTestCase
     {
         parent::setUp();
         $this->workflow = $this->app->make(Workflow::class);
-    }
-
-    private function arrangeNewOrderData(): void
-    {
-        // mock customer's approver
-        User::factory()->create(['meta->personnel_no' => 99999]);
-        $this->mock(EOSAPI::class, function (MockInterface $mock) {
-            $mock->shouldReceive('minManagerBoss')
-                ->andReturn(["personnel_no" => 99999]);
-        });
-
-        // prepare drivers and even & odd plate number vehicles
-        Driver::factory()
-            ->count(2)
-            ->state(new Sequence(
-                ['vehicle_id' => Vehicle::factory()->odd()->create()->id],
-                ['vehicle_id' => Vehicle::factory()->even()->create()->id],
-            ))
-            ->create();
     }
 
     private function createNewOrderAttributes(
@@ -76,90 +58,62 @@ class OrderTest extends FeatureTestCase
         ];
     }
 
-    /** @test */
-    public function a_customer_create_an_order_with_odd_even_toggle(): void
+    private function testCreateAnOrderWithOddEvenToggle($is_odd_even): Order
     {
-        $this->arrangeNewOrderData();
-        $scheduled_at = Carbon::instance(fake()->dateTimeThisMonth());
-        extract($this->createNewOrderAttributes($scheduled_at, true));
-
-        // $this->postJson(route('orders.store'), $post)->assertCreated();
-        $response = $this->postJson(route('orders.store'), $post);
-        $order = Order::find($response->json()['id']);
-        dd(
-            $scheduled_at->day,
-            $order->driver_review->driver->vehicle->plate_number,
-            $order->driver_review->driver->vehicle->meta,
-            $order->driver_review->driver->vehicle->hasEven(),
-            $order->driver_review->driver->vehicle->hasOdd(),
-        );
-
-
-        // make sure the day is matched with the odd even vehicle plate number selection
-
-
-        $this->assertDatabaseHas('orders', $assert);
-        $this->assertNotNull(Order::first()->driver_review);
-        $this->assertNotNull(Order::first()->approver);
-    }
-
-    /** @test */
-    public function a_customer_create_an_order_with_default_values(): void
-    {
-
-        // authenticated user
-        $customer = $this->auth();
-
-        // customer's approver
+        // mock customer's approver
         User::factory()->create(['meta->personnel_no' => 99999]);
         $this->mock(EOSAPI::class, function (MockInterface $mock) {
             $mock->shouldReceive('minManagerBoss')
                 ->andReturn(["personnel_no" => 99999]);
         });
 
-        // driver and vehicle
-        Driver::factory()->create(
-            ['vehicle_id' => Vehicle::factory()->even()->create()->id]
-        );
+        // prepare drivers and even & odd plate number vehicles
+        Driver::factory()
+            ->count(2)
+            ->state(new Sequence(
+                ['vehicle_id' => Vehicle::factory()->odd()->create()->id],
+                ['vehicle_id' => Vehicle::factory()->even()->create()->id],
+            ))
+            ->create();
 
-        // required attributes for order
-        $sa = Carbon::instance(fake()->dateTimeThisMonth())->toDateTimeString();
-        $attributes = [
-            'customer_id' => $customer->id,
-            'pickup_id' => Place::factory()->create()->id,
-            'dropoff_id' => Place::factory()->create()->id,
-            'scheduled_at' => $sa,
-        ];
+        $scheduled_at = Carbon::instance(fake()->dateTimeThisMonth());
 
-        // order meta for additional information
-        $title = fake()->sentence();
-        $pickup_details = fake()->address();
-        $is_odd_even = rand(0, 1) ? true : false;
+        // set the odd even toggle and extract $post and $assert variables
+        extract($this->createNewOrderAttributes($scheduled_at, $is_odd_even));
 
-        // act on the post order endpoint and assert the response
-        $this->postJson(
-            route('orders.store'),
-            array_merge($attributes, [
-                'meta' => [
-                    'title' => $title,
-                    'pickup_details' => $pickup_details,
-                    'is_odd_even' => $is_odd_even,
-                ]
-            ])
-        )->assertCreated();
+        // assert 201 in the orders.store route
+        $response = $this->postJson(route('orders.store'), $post);
+        $response->assertCreated();
 
-        // additional data assertion
-        $this->assertDatabaseHas(
-            'orders',
-            array_merge($attributes, [
-                'meta->title' => $title,
-                'meta->pickup_details' => $pickup_details,
-                'meta->is_odd_even' => $is_odd_even,
-            ])
-        );
+        // assert the record in the database
+        $this->assertDatabaseHas('orders', $assert);
 
-        $this->assertNotNull(Order::first()->driver_review);
-        $this->assertNotNull(Order::first()->approver);
+        $order = Order::find($response->json()['id']);
+
+        // assert the driver review and approver is referenced
+        $this->assertInstanceOf(DriverReview::class, $order->driver_review);
+        $this->assertInstanceOf(User::class, $order->approver);
+
+        return $order;
+    }
+
+    /** @test */
+    public function a_customer_create_an_order_with_odd_even_toggle(): void
+    {
+        $order = $this->testCreateAnOrderWithOddEvenToggle(true);
+
+        // make sure the day is matched with the odd even vehicle plate number selection
+        if ($order->scheduled_at->day % 2 == 0) {
+            $this->assertTrue($order->driver_review->driver->hasEven());
+        } else {
+            $this->assertTrue($order->driver_review->driver->hasOdd());
+        }
+    }
+
+    /** @test */
+    public function a_customer_create_an_order_without_odd_even_toggle(): void
+    {
+        $this->testCreateAnOrderWithOddEvenToggle(false);
     }
 
     /** @test */
@@ -252,7 +206,7 @@ class OrderTest extends FeatureTestCase
             ->assertCreated();
 
         $costs->each(
-            fn ($cost) => $this->assertDatabaseHas('costs', $cost->toArray())
+            fn($cost) => $this->assertDatabaseHas('costs', $cost->toArray())
         );
     }
 

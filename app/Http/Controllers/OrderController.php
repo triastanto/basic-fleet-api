@@ -17,16 +17,14 @@ class OrderController extends Controller
     public function store(Request $request): Response
     {
         // TODO: need to implement the driver selection
-        dd(
-            $request->meta['is_odd_even'],
-            Date::createFromTimeString($request->scheduled_at)
-        );
         $scheduled_at = ($request->meta['is_odd_even'])
             ? Date::createFromTimeString($request->scheduled_at) : null;
 
-
         $attributes = $request->merge([
-            'driver_review_id' => DriverReview::createWithDriver()->id,
+            'driver_review_id' => DriverReview::createWithDriver(
+                $request->meta['is_odd_even'],
+                $scheduled_at
+            )->id,
             'approver_id' => User::getApprover(auth()->user()->meta['personnel_no'])->id,
             'state_id' => app()->make(Workflow::class)->getInitialState()->value,
         ])->all();
