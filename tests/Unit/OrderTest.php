@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
-use App\Models\User;
+use App\Models\Customer;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -15,7 +15,7 @@ class OrderTest extends TestCase
     {
         $order = Order::factory()->create();
 
-        $this->assertInstanceOf(User::class, $order->customer);
+        $this->assertInstanceOf(Customer::class, $order->customer);
     }
 
     /** @test */
@@ -47,6 +47,6 @@ class OrderTest extends TestCase
     {
         $order = Order::factory()->create();
 
-        $this->assertInstanceOf(User::class, $order->approver);
+        $this->assertInstanceOf(Customer::class, $order->approver);
     }
 }

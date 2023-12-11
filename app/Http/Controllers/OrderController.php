@@ -6,7 +6,7 @@ use App\Enums\Transition;
 use App\Models\Driver;
 use App\Models\DriverReview;
 use App\Models\Order;
-use App\Models\User;
+use App\Models\Customer;
 use App\Services\Workflow;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -25,7 +25,7 @@ class OrderController extends Controller
                 $request->meta['is_odd_even'],
                 $scheduled_at
             )->id,
-            'approver_id' => User::getApprover(auth()->user()->meta['personnel_no'])->id,
+            'approver_id' => Customer::getApprover(auth()->user()->meta['personnel_no'])->id,
             'state_id' => app()->make(Workflow::class)->getInitialState()->value,
         ])->all();
         $order = Order::create($attributes);

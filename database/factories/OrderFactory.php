@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\DriverReview;
 use App\Models\Place;
-use App\Models\User;
+use App\Models\Customer;
 use App\Models\Workflow\State;
 use App\Services\Workflow;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,7 +22,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'customer_id' => User::factory()->create()->id,
+            'customer_id' => Customer::factory()->create()->id,
             'pickup_id' => Place::factory()->create()->id,
             'dropoff_id' => Place::factory()->create()->id,
             'scheduled_at' => fake()->dateTimeThisMonth(),
@@ -32,7 +32,7 @@ class OrderFactory extends Factory
                 'is_odd_even' => rand(0, 1) ? true : false,
             ],
             'driver_review_id' => DriverReview::factory()->create()->id,
-            'approver_id' => User::factory()->create()->id,
+            'approver_id' => Customer::factory()->create()->id,
             'state_id' => State::factory()->create()->id,
         ];
     }

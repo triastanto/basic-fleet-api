@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use App\Models\User;
+use App\Models\Customer;
 use Database\Seeders\WorkflowSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -20,8 +20,8 @@ abstract class FeatureTestCase extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function auth(): User
+    public function auth(): Customer
     {
-        return Sanctum::actingAs(User::factory()->create());
+        return Sanctum::actingAs(Customer::factory()->create());
     }
 }

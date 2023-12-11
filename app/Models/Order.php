@@ -22,7 +22,7 @@ class Order extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function pickup(): BelongsTo
@@ -42,7 +42,7 @@ class Order extends Model
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function costs(): HasMany

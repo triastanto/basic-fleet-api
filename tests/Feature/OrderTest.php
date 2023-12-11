@@ -9,7 +9,7 @@ use App\Models\DriverReview;
 use App\Models\Order;
 use App\Models\Place;
 use App\Models\TrackingNumber;
-use App\Models\User;
+use App\Models\Customer;
 use App\Models\Vehicle;
 use App\Services\EOSAPI;
 use App\Services\Workflow;
@@ -61,7 +61,7 @@ class OrderTest extends FeatureTestCase
     private function testCreateAnOrderWithOddEvenToggle($is_odd_even): Order
     {
         // mock customer's approver
-        User::factory()->create(['meta->personnel_no' => 99999]);
+        Customer::factory()->create(['meta->personnel_no' => 99999]);
         $this->mock(EOSAPI::class, function (MockInterface $mock) {
             $mock->shouldReceive('minManagerBoss')
                 ->andReturn(["personnel_no" => 99999]);
@@ -92,7 +92,7 @@ class OrderTest extends FeatureTestCase
 
         // assert the driver review and approver is referenced
         $this->assertInstanceOf(DriverReview::class, $order->driver_review);
-        $this->assertInstanceOf(User::class, $order->approver);
+        $this->assertInstanceOf(Customer::class, $order->approver);
 
         return $order;
     }
