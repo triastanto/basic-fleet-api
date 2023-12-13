@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\CustomerController;
+use App\Http\Controllers\Auth\DriverController;
 use App\Http\Controllers\DriverReviewController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +16,14 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::prefix('customers')->name('customers.')->group(function () {
+    Route::post('token', [CustomerController::class, 'token'])->name('token');
+});
+
+Route::prefix('drivers')->name('drivers.')->group(function () {
+    Route::post('token', [DriverController::class, 'token'])->name('token');
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('orders', OrderController::class)->only('store');
