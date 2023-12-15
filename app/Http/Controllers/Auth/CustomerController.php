@@ -18,7 +18,7 @@ class CustomerController extends Controller
         if (!$customer || !Hash::check($request->password, $customer->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect'],
-            ])->status(401);
+            ])->status(Response::HTTP_UNAUTHORIZED);
         }
 
         return response(
