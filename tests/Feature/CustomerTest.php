@@ -23,7 +23,7 @@ class CustomerTest extends FeatureTestCase
     /** @test */
     public function it_successfully_retrieves_customer_as_approver(): void
     {
-        $customer = $this->auth();
+        $customer = $this->customerAuth();
         $approver = $this->approver($customer);
 
         // shouldn't be retrieve as approver

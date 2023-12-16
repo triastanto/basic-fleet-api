@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Providers;
 
 use App\Services\EOSAPI;
 use App\Services\Workflow;

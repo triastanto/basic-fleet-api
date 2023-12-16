@@ -10,7 +10,7 @@ class DriverReviewTest extends FeatureTestCase
     /** @test */
     public function a_customer_can_submit_driver_review(): void
     {
-        $customer = $this->auth();
+        $customer = $this->customerAuth();
 
         $order = Order::factory()->initialState()->create(
             ['customer_id' => $customer->id]
@@ -22,7 +22,7 @@ class DriverReviewTest extends FeatureTestCase
 
         $this->postJson(
             route(
-                'drivers.review.store',
+                'customers.drivers.review.store',
                 ['driver' => $order->driver_review->driver]
             ),
             $attributes,

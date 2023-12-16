@@ -13,6 +13,7 @@ class CustomerController extends Controller
 {
     public function token(Request $request): Response
     {
+        /** @var Customer|null $customer */
         $customer = Customer::where('email', $request->email)->first();
 
         if (!$customer || !Hash::check($request->password, $customer->password)) {
@@ -22,7 +23,7 @@ class CustomerController extends Controller
         }
 
         return response(
-            $customer->createToken($request->device_name)->plainTextToken,
+            ['token' => $customer->createToken($request->device_name, ['customer'])->plainTextToken],
             200
         );
     }

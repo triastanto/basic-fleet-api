@@ -33,7 +33,7 @@ class OrderTest extends FeatureTestCase
         bool $is_odd_even
     ): array {
         $attributes = [
-            'customer_id' => $this->auth()->id,
+            'customer_id' => $this->customerAuth()->id,
             'pickup_id' => Place::factory()->create()->id,
             'dropoff_id' => Place::factory()->create()->id,
             'scheduled_at' => $scheduled_at,
@@ -82,7 +82,7 @@ class OrderTest extends FeatureTestCase
         extract($this->createNewOrderAttributes($scheduled_at, $is_odd_even));
 
         // assert 201 in the orders.store route
-        $response = $this->postJson(route('orders.store'), $post);
+        $response = $this->postJson(route('customers.orders.store'), $post);
         $response->assertCreated();
 
         // assert the record in the database
@@ -119,12 +119,12 @@ class OrderTest extends FeatureTestCase
     /** @test */
     public function an_approver_approve_order(): void
     {
-        $approver = $this->auth();
+        $approver = $this->customerAuth();
         $order = Order::factory()->initialState()->create([
             'approver_id' => $approver->id,
         ]);
 
-        $this->postJson(route('orders.approve', ['order' => $order]))
+        $this->postJson(route('customers.orders.approve', ['order' => $order]))
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
@@ -135,12 +135,12 @@ class OrderTest extends FeatureTestCase
     /** @test */
     public function an_approver_reject_order(): void
     {
-        $approver = $this->auth();
+        $approver = $this->customerAuth();
         $order = Order::factory()->initialState()->create([
             'approver_id' => $approver->id,
         ]);
 
-        $this->postJson(route('orders.reject', ['order' => $order]))
+        $this->postJson(route('customers.orders.reject', ['order' => $order]))
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
@@ -151,14 +151,14 @@ class OrderTest extends FeatureTestCase
     /** @test */
     public function a_customer_replaces_driver(): void
     {
-        $customer = $this->auth();
+        $customer = $this->customerAuth();
         $order = Order::factory()->initialState()->create([
             'customer_id' => $customer->id,
         ]);
         $driver = $order->driver_review->driver;
 
         $this->postJson(
-            route('orders.driver', ['order' => $order]),
+            route('customers.orders.driver', ['order' => $order]),
             ['driver' => $driver]
         )
             ->assertCreated();
@@ -172,15 +172,14 @@ class OrderTest extends FeatureTestCase
     /** @test */
     public function a_driver_starts_trip(): void
     {
-        // TODO: implement guard for driver
-        $this->auth();
+        $this->driverAuth();
 
         $order = Order::factory()->create([
             'state_id' => State::APPROVED->value
         ]);
         $tn = TrackingNumber::factory()->raw(['order_id' => $order->id]);
 
-        $this->postJson(route('orders.start', ['order' => $order]), $tn)
+        $this->postJson(route('drivers.orders.start', ['order' => $order]), $tn)
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',
@@ -192,7 +191,7 @@ class OrderTest extends FeatureTestCase
     /** @test */
     public function a_driver_input_cost(): void
     {
-        $this->auth();
+        $this->driverAuth();
 
         $order = Order::factory()->create([
             'state_id' => State::ON_THE_WAY->value
@@ -200,7 +199,7 @@ class OrderTest extends FeatureTestCase
         $costs = Cost::factory()->count(3)->make(['order_id' => $order->id]);
 
         $this->postJson(
-            route('orders.costs', ['order' => $order]),
+            route('drivers.orders.costs', ['order' => $order]),
             ['costs' => $costs]
         )
             ->assertCreated();
@@ -213,14 +212,14 @@ class OrderTest extends FeatureTestCase
     /** @test */
     public function a_driver_ends_the_trip(): void
     {
-        $this->auth();
+        $this->driverAuth();
 
         $order = Order::factory()->create(
             ['state_id' => State::ON_THE_WAY->value]
         );
         $tn = TrackingNumber::factory()->raw(['order_id' => $order->id]);
 
-        $this->postJson(route('orders.end', ['order' => $order]), $tn)
+        $this->postJson(route('drivers.orders.end', ['order' => $order]), $tn)
             ->assertCreated();
         $this->assertDatabaseHas(
             'orders',

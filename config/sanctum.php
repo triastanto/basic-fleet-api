@@ -33,7 +33,9 @@ return [
     |
     */
 
-    'guard' => ['web'],
+    // The guards defined in auth.php separate the user provider
+    // definition between customer and driver model
+    'guard' => ['customer', 'driver'],
 
     /*
     |--------------------------------------------------------------------------

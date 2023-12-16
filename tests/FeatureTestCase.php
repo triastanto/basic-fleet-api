@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Models\Customer;
+use App\Models\Driver;
 use Database\Seeders\WorkflowSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -20,8 +21,13 @@ abstract class FeatureTestCase extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function auth(): Customer
+    public function customerAuth(): Customer
     {
-        return Sanctum::actingAs(Customer::factory()->create());
+        return Sanctum::actingAs(Customer::factory()->create(), ['customer']);
+    }
+
+    public function driverAuth(): Driver
+    {
+        return Sanctum::actingAs(Driver::factory()->create(), ['driver']);
     }
 }

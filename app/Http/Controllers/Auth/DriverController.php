@@ -13,16 +13,17 @@ class DriverController extends Controller
 {
     public function token(Request $request): Response
     {
+        /** @var Driver|null $driver */
         $driver = Driver::where('email', $request->email)->first();
 
         if (!$driver || !Hash::check($request->password, $driver->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect'],
-            ])->status(401);
+            ])->status(Response::HTTP_UNAUTHORIZED);
         }
 
         return response(
-            $driver->createToken($request->device_name)->plainTextToken,
+            ['token' => $driver->createToken($request->device_name, ['driver'])->plainTextToken],
             200
         );
     }
