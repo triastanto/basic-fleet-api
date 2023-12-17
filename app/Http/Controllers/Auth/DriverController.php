@@ -24,7 +24,7 @@ class DriverController extends Controller
 
         return response(
             ['token' => $driver->createToken($request->device_name, ['driver'])->plainTextToken],
-            200
+            Response::HTTP_OK
         );
     }
 }

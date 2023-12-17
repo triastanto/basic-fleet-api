@@ -21,10 +21,6 @@ Route::prefix('customers')->name('customers.')->group(function () {
     Route::post('token', [CustomerController::class, 'token'])->name('token');
 
     Route::middleware(['auth:sanctum', 'abilities:customer'])->group(function () {
-        // TODO: route for testing purpose
-        Route::get('protected', function () {
-            return "this is protected with customer ability";
-        });
         Route::apiResource('orders', OrderController::class)->only('store');
         Route::prefix('orders/{order}')->name('orders.')->group(function () {
             Route::post('approve', [OrderController::class, 'approve'])->name('approve');
@@ -40,10 +36,6 @@ Route::prefix('drivers')->name('drivers.')->group(function () {
     Route::post('token', [DriverController::class, 'token'])->name('token');
 
     Route::middleware(['auth:sanctum', 'abilities:driver'])->group(function () {
-        // TODO: route for testing purpose
-        Route::get('protected', function () {
-            return "this is protected with driver ability";
-        });
         Route::prefix('orders/{order}')->name('orders.')->group(function () {
             Route::post('start', [OrderController::class, 'start'])->name('start');
             Route::post('costs', [OrderController::class, 'costs'])->name('costs');

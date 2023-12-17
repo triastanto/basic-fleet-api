@@ -24,7 +24,7 @@ class CustomerController extends Controller
 
         return response(
             ['token' => $customer->createToken($request->device_name, ['customer'])->plainTextToken],
-            200
+            Response::HTTP_OK
         );
     }
 }

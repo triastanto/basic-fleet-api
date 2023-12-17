@@ -16,7 +16,7 @@ class OrderController extends Controller
 {
     public function store(Request $request): Response
     {
-        // TODO: need to implement the driver selection
+        // TODO: need to validate time eligibility
         $scheduled_at = ($request->meta['is_odd_even'])
             ? Date::createFromTimeString($request->scheduled_at) : null;
 
@@ -35,6 +35,7 @@ class OrderController extends Controller
 
     public function driver(Order $order, Driver $driver): Response
     {
+        // TODO: need to validate time eligibility
         $order->driver_review->driver()->associate($driver);
 
         return response($order, 201);
